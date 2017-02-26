@@ -3,7 +3,7 @@ let loaderUtils = require("loader-utils");
 
 let definitions;
 
-const globalRegex = /(?:(\/[*](#else|#endif)[*]\/)|(\/[*](#if|#elif)\s(?:\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\/)|(.*?))*/g
+const globalRegex = /(?:(\/[*].*?[*]\/)|(.*?))*/gm;
 
 const elifRegex = /\/[*]#elif\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\//;
 const elseRegex = /\/[*]#else[*]\//;
@@ -35,15 +35,16 @@ function getBranchCode(branchRules, code = '') {
 }
 
 function getCode(rules, code = '') {
-    let current = rules.shift();
-    if (!current) {
+    let rule = rules.shift();
+
+    if (!rule) {
         return code;
     }
 
-    if (current.type === 'expression') {
-        code += current.content + '\n';
-    } else if (current.type === 'branch') {
-        code += getBranchCode(current.content);
+    if (rule.type === 'expression' && rule.content) {
+        code += '\r\n' + rule.content;
+    } else if (rule.type === 'branch') {
+        code += getBranchCode(rule.content) || '';
     }
 
     return getCode(rules, code);
@@ -140,7 +141,13 @@ function PreprocessorLoader(content) {
     // ignore empty matches
     matches = _.filter(matches, match => match && match.length);
 
-    let rules = getRules(matches).shift().content;
+    let rules = getRules(matches);
+    if (!rules) {
+        return content;
+    }
+
+    rules = rules.shift().content;
+
     let code = getCode(rules);
 
     if (this.cacheable) {
