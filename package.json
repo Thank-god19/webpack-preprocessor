@@ -1,6 +1,6 @@
 {
     "name": "webpack-preprocessor",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "c",
     "main": "index.js",
     "repository": {
