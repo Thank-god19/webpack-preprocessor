@@ -30,7 +30,7 @@ webpack.config:
 {
     module: {
         loaders: [
-            { test: /\.js$/, loader: "webpack-preprocessor?definitions=['dev']" }
+            { test: /\.js$/, loader: "webpack-preprocessor?definitions=['stage,test']" }
         ]
     }
 };

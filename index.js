@@ -135,7 +135,7 @@ function getRules(matches, stack = [{ content: [] }]) {
 
 function PreprocessorLoader(content) {
     let query = loaderUtils.parseQuery(this.query) || {};
-    definitions = query.definitions;
+    definitions = query.definitions || [];
 
     let matches = content.match(globalRegex);
     // ignore empty matches
