@@ -1,21 +1,24 @@
 {
-    "name": "webpack-preprocessor",
-    "version": "0.1.1",
-    "description": "c",
-    "main": "index.js",
-    "repository": {
-        "type": "git",
-        "url": "git://git@github.com/Marc-Andre-Rivet/webpack-preprocessor.git"
-    },
-    "homepage": "https://github.com/Marc-Andre-Rivet/webpack-preprocessor",
-    "keywords": [
-        "webpack",
-        "webpackloader",
-        "preprocessor"
-    ],
-    "author": {
-        "name": "Marc-André Rivet"
-    },
-    "contributors": [],
-    "license": "MIT"
+  "name": "webpack-preprocessor",
+  "version": "0.1.2",
+  "description": "Webpack loader for preprocessor support in JS",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://git@github.com/Marc-Andre-Rivet/webpack-preprocessor.git"
+  },
+  "homepage": "https://github.com/Marc-Andre-Rivet/webpack-preprocessor",
+  "keywords": [
+    "webpack",
+    "webpackloader",
+    "preprocessor"
+  ],
+  "author": {
+    "name": "Marc-André Rivet"
+  },
+  "contributors": [],
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
 }
