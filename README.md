@@ -3,7 +3,7 @@ Webpack Preprocessor
 
 Webpack plugin for preprocessor support
 
-This project is based on the webpack-strip-block project by jballant
+This project is my first attempt at making a webpack loader and is based on the webpack-strip-block project by jballant
 <a href="https://github.com/jballant/webpack-strip-block">webpack-strip-block</a>
 
 ###Example:
