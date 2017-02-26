@@ -1,46 +1,32 @@
-Webpack Strip Block
+Webpack Preprocessor
 ===================
 
-Webpack loader to strip blocks of code marked by special comment tags
+Webpack plugin for preprocessor support
+
+This project is based on the webpack-strip-block project by jballant
+<a href="https://github.com/jballant/webpack-strip-block">webpack-strip-block</a>
 
 ###Example:
 
-In your client js source files:
-
 ```javascript
+var foo() {
+    /*#if dev*/
+    let bar = 'dev';
+    /*#else*/
+    let bar = 'prod';
+    /*#endif*/
 
-var makeFoo(bar, baz) {
-    // The following code will be stripped with our webpack loader
-    /* develblock:start */
-    if (bar instanceof Bar !== true) {
-        throw new Error('makeFoo: bar param is required and must be instance of Bar');
-    }
-    /* develblock:end */
-
-    // This code would remain
-    return new Foo(bar, baz);
+    console.log(bar);
 }
-
 ```
 
-In your webpack config:
+webpack.config:
 
 ```javascript
 {
     module: {
         loaders: [
-            { test: /\.js$/, loader: "webpack-strip-block" }
-        ]
-    }
-};
-```
-It is also possible to overwrite the `start` and `end` variables with url-encoded string values:
-
-```javascript
-{
-    module: {
-        loaders: [
-            { test: /\.js$/, loader: "webpack-strip-block?start=DEV-START&end=DEV-END" }
+            { test: /\.js$/, loader: "webpack-preprocessor?definitions=['dev']" }
         ]
     }
 };

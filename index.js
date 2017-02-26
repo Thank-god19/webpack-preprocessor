@@ -1,22 +1,153 @@
-/*jslint node:true */
-"use strict";
+let _ = require('lodash');
+let loaderUtils = require("loader-utils");
 
-var loaderUtils = require("loader-utils");
+let definitions;
 
-function StripBlockLoader(content) {
-    var query = loaderUtils.parseQuery(this.query);
-    var startComment = query.start || 'develblock:start';
-    var endComment = query.end || 'develblock:end';
+const globalRegex = /(?:(\/[*](#else|#endif)[*]\/)|(\/[*](#if|#elif)\s(?:\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\/)|(.*?))*/g
 
-    var regexPattern = new RegExp("[\\t ]*\\/\\* ?" + startComment + " ?\\*\\/[\\s\\S]*?\\/\\* ?" + endComment + " ?\\*\\/[\\t ]*\\n?", "g");
+const elifRegex = /\/[*]#elif\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\//;
+const elseRegex = /\/[*]#else[*]\//;
+const endifRegex = /\/[*]#endif[*]\//;
+const ifRegex = /\/[*]#if\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\//;
 
-    content = content.replace(regexPattern, '');
+function getBranchCode(branchRules, code = '') {
+    let activeBranch = _.find(branchRules, rule => {
+        if (!rule.condition) { return true; }
+
+        if (rule.condition.type === 'and') {
+            return _.intersection(
+                rule.condition.definitions,
+                definitions
+            ).length === rule.condition.definitions.length;
+        } else if (rule.condition.type === 'or') {
+            return _.intersection(
+                rule.condition.definitions,
+                definitions
+            );
+        } else {
+            return definitions.indexOf(rule.condition) !== -1;
+        }
+    });
+
+    if (activeBranch) {
+        return getCode(activeBranch.content);
+    }
+}
+
+function getCode(rules, code = '') {
+    let current = rules.shift();
+    if (!current) {
+        return code;
+    }
+
+    if (current.type === 'expression') {
+        code += current.content + '\n';
+    } else if (current.type === 'branch') {
+        code += getBranchCode(current.content);
+    }
+
+    return getCode(rules, code);
+}
+
+function getCondition(expression) {
+    if (expression.indexOf('&&') !== -1) {
+        return {
+            type: 'and',
+            definitions: expression.split('&&')
+        };
+    } else if (expression.indexOf('||') !== -1) {
+        return {
+            type: 'or',
+            definitions: expression.split('||')
+        };
+    } else {
+        return expression;
+    }
+}
+
+function getRules(matches, stack = [{ content: [] }]) {
+    let current = matches.shift();
+    if (!current) {
+        return stack[0];
+    }
+
+    let target;
+
+    let match;
+    if (match = current.match(ifRegex)) {
+        target = stack[0];
+
+        let branch = {
+            type: 'branch',
+            content: []
+        };
+        stack.unshift(branch);
+
+        let ifBlock = {
+            type: 'if',
+            condition: getCondition(match[1]),
+            content: []
+        };
+        stack.unshift(ifBlock);
+        branch.content.push(ifBlock);
+
+        target.content.push(branch);
+        target.content.push(ifBlock);
+    } else if (match = current.match(elifRegex)) {
+        stack.shift(); // out of if
+        target = stack[0];
+
+        let ifBlock = {
+            type: 'if',
+            condition: getCondition(match[1]),
+            content: []
+        };
+        stack.unshift(ifBlock);
+
+        target.content.push(ifBlock);
+    } else if (match = current.match(elseRegex)) {
+        stack.shift(); // out of if
+        target = stack[0];
+
+        let ifBlock = {
+            type: 'if',
+            content: []
+        };
+        stack.unshift(ifBlock);
+
+        target.content.push(ifBlock);
+    } else if (match = current.match(endifRegex)) {
+        stack.shift(); // out of if
+        stack.shift(); // out of branch
+    } else {
+        target = stack[0];
+
+        target.content.push({
+            type: 'expression',
+            content: current
+        });
+    }
+
+    getRules(matches, stack);
+    return stack;
+}
+
+function PreprocessorLoader(content) {
+    let query = loaderUtils.parseQuery(this.query) || {};
+    definitions = query.definitions;
+
+    let matches = content.match(globalRegex);
+    // ignore empty matches
+    matches = _.filter(matches, match => match && match.length);
+
+    let rules = getRules(matches).shift().content;
+    let code = getCode(rules);
 
     if (this.cacheable) {
         this.cacheable(true);
     }
 
-    return content;
+    return code;
 }
 
-module.exports = StripBlockLoader;
+module.exports = PreprocessorLoader;
