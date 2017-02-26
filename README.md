@@ -12,6 +12,10 @@ This project is my first attempt at making a webpack loader and is based on the 
 var foo() {
     /*#if dev*/
     let bar = 'dev';
+    /*#elif stage&&test*/
+    let bar = 'stage-test';
+    /*#elif stage||test*/
+    let bar = 'stage-or-test';
     /*#else*/
     let bar = 'prod';
     /*#endif*/
