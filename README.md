@@ -9,7 +9,7 @@ This project is my first attempt at making a webpack loader and is based on the 
 ###Example:
 
 ```javascript
-var foo() {
+funcion foo() {
     /*#if dev*/
     let bar = 'dev';
     /*#elif stage&&test*/
