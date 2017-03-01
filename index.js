@@ -3,12 +3,12 @@ let loaderUtils = require("loader-utils");
 
 let definitions;
 
-const globalRegex = /(?:(\/[*].*?[*]\/)|(.*?))*/gm;
+const globalRegex = /(?:((?:\/[*]|<!--).*?(?:[*]\/|-->))|(.*?))*/gm;
 
-const elifRegex = /\/[*]#elif\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\//;
-const elseRegex = /\/[*]#else[*]\//;
-const endifRegex = /\/[*]#endif[*]\//;
-const ifRegex = /\/[*]#if\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))[*]\//;
+const elifRegex = /(?:\/[*]|<!--)#elif\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:[*]\/|-->)/;
+const elseRegex = /(?:\/[*]|<!--)#else(?:[*]\/|-->)/;
+const endifRegex = /(?:\/[*]|<!--)#endif(?:[*]\/|-->)/;
+const ifRegex = /(?:\/[*]|<!--)#if\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:[*]\/|-->)/;
 
 function getBranchCode(branchRules, code = '') {
     let activeBranch = _.find(branchRules, rule => {

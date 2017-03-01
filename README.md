@@ -24,13 +24,19 @@ funcion foo() {
 }
 ```
 
+``` html
+<!--#if dev||stage-->
+<div>DEVELOPMENT VERSION</div>
+<!--#endif-->
+```
+
 webpack.config:
 
 ```javascript
 {
     module: {
         loaders: [
-            { test: /\.js$/, loader: "webpack-preprocessor?definitions=['stage,test']" }
+            { test: /\.(js|htm(l?))$/, loader: "webpack-preprocessor?definitions=['stage,test']" }
         ]
     }
 };
