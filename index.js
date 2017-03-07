@@ -5,10 +5,10 @@ let definitions;
 
 const globalRegex = /(?:((?:\/[*]|<!--).*?(?:[*]\/|-->))|(.*?))*/gm;
 
-const elifRegex = /(?:\/[*]|<!--)#elif\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:[*]\/|-->)/;
-const elseRegex = /(?:\/[*]|<!--)#else(?:[*]\/|-->)/;
-const endifRegex = /(?:\/[*]|<!--)#endif(?:[*]\/|-->)/;
-const ifRegex = /(?:\/[*]|<!--)#if\s(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:[*]\/|-->)/;
+const elifRegex = /(?:\/[*]|<!--)(?:\s*)#elif\s+(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:\s*)(?:[*]\/|-->)/;
+const elseRegex = /(?:\/[*]|<!--)(?:\s*)#else(?:\s*)(?:[*]\/|-->)/;
+const endifRegex = /(?:\/[*]|<!--)(?:\s*)#endif(?:\s*)(?:[*]\/|-->)/;
+const ifRegex = /(?:\/[*]|<!--)(?:\s*)#if\s+(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:\s*)(?:[*]\/|-->)/;
 
 function getBranchCode(branchRules, code = '') {
     let activeBranch = _.find(branchRules, rule => {
