@@ -137,6 +137,10 @@ function PreprocessorLoader(content) {
     let query = loaderUtils.parseQuery(this.query) || {};
     definitions = query.definitions || [];
 
+    if (!content.trim()) {
+        return content;
+    }
+
     let matches = content.match(globalRegex);
     // ignore empty matches
     matches = _.filter(matches, match => match && match.length);
