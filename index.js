@@ -1,7 +1,9 @@
 let _ = require('lodash');
-let loaderUtils = require("loader-utils");
+let loaderUtils = require('loader-utils');
+const os = require('os');
 
 let definitions;
+let EOLChar;        // Holds content EOL marker.
 
 const globalRegex = /(?:((?:\/[*]|<!--).*?(?:[*]\/|-->))|(.*?))*/gm;
 
@@ -42,7 +44,7 @@ function getCode(rules, code = '') {
     }
 
     if (rule.type === 'expression' && rule.content) {
-        code += '\r\n' + rule.content;
+        code += EOLChar + rule.content;
     } else if (rule.type === 'branch') {
         code += getBranchCode(rule.content) || '';
     }
@@ -137,6 +139,24 @@ function PreprocessorLoader(content) {
     let query = loaderUtils.parseQuery(this.query) || {};
     definitions = query.definitions || [];
 
+    // Dynamically determine file end of line (EOL) marker.
+    // Use os.EOL if no EOL marker found.
+    // Note: ECMA 5.1 Specifications permits end slicing
+    // on empty strings
+    let lc = content.slice(-1);
+    if (lc === '\n') {
+        let slc = content.slice(-2);
+        if (slc === '\r') {
+            EOLChar = '\r\n';
+        } else {
+            EOLChar = '\n';
+        }
+    } else {
+        // Unknown EOL marker, use current OS EOL instead.
+        EOLChar = os.EOL;
+    }
+
+    // Trim removes EOL marker. Place after finding it.
     if (!content.trim()) {
         return content;
     }
@@ -158,7 +178,11 @@ function PreprocessorLoader(content) {
         this.cacheable(true);
     }
 
-    return code;
+    // Ensure modified code reconstitutes final EOL marker,
+    // as trim function removes it. ESLint is one of many
+    // programs to complain if final line EOL marker is
+    // missing.
+    return code + EOLChar;
 }
 
 module.exports = PreprocessorLoader;
