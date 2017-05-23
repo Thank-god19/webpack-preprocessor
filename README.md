@@ -20,6 +20,13 @@ funcion foo() {
     let bar = 'prod';
     /*#endif*/
 
+    /*#if !dev*/
+    bar += '!dev';
+    /*#endif*/
+    
+    /*#if cond1&&cond2||cond3 */ // <-- combinations of && and || operators are not supported
+    /*#endif*/
+
     console.log(bar);
 }
 ```
