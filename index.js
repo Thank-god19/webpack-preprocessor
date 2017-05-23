@@ -7,25 +7,23 @@ let EOLChar;        // Holds content EOL marker.
 
 const globalRegex = /(?:((?:\/[*]|<!--).*?(?:[*]\/|-->))|(.*?))*/gm;
 
-const elifRegex = /(?:\/[*]|<!--)(?:\s*)#elif\s+(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:\s*)(?:[*]\/|-->)/;
+const elifRegex = /(?:\/[*]|<!--)(?:\s*)#elif\s+([!]?\w+(?:(?:&&[!]?\w+)*|(?:[|]{2}[!]?\w+)*))(?:\s*)(?:[*]\/|-->)/;
 const elseRegex = /(?:\/[*]|<!--)(?:\s*)#else(?:\s*)(?:[*]\/|-->)/;
 const endifRegex = /(?:\/[*]|<!--)(?:\s*)#endif(?:\s*)(?:[*]\/|-->)/;
-const ifRegex = /(?:\/[*]|<!--)(?:\s*)#if\s+(\w+(?:(?:&&\w+)*|(?:[|]{2}\w+)*))(?:\s*)(?:[*]\/|-->)/;
+const ifRegex = /(?:\/[*]|<!--)(?:\s*)#if\s+([!]?\w+(?:(?:&&[!]?\w+)*|(?:[|]{2}[!]?\w+)*))(?:\s*)(?:[*]\/|-->)/;
 
 function getBranchCode(branchRules, code = '') {
     let activeBranch = _.find(branchRules, rule => {
         if (!rule.condition) { return true; }
 
         if (rule.condition.type === 'and') {
-            return _.intersection(
-                rule.condition.definitions,
-                definitions
-            ).length === rule.condition.definitions.length;
+            return _.intersection(rule.condition.regard, definitions).length === rule.condition.regard.length &&
+                !_.intersection(rule.condition.disregard, definition).length;
         } else if (rule.condition.type === 'or') {
-            return _.intersection(
-                rule.condition.definitions,
-                definitions
-            );
+            return _.intersection(rule.condition.regard, definitions) &&
+                _.intersection(rule.condition.disregard, definitions).length < rule.condition.disregard.length;
+        } else if (rule.condition[0] === '!') {
+            return definitions.indexOf(rule.condition.substr(1)) === -1;
         } else {
             return definitions.indexOf(rule.condition) !== -1;
         }
@@ -54,14 +52,20 @@ function getCode(rules, code = '') {
 
 function getCondition(expression) {
     if (expression.indexOf('&&') !== -1) {
+        let definitions = expression.split('&&');
+
         return {
             type: 'and',
-            definitions: expression.split('&&')
+            regard: _.filter(definitions, def => def[0] !== '!'),
+            disregard: _.map(_.filter(definitions, def => def[0] === '!'), def => def.substr(1))
         };
     } else if (expression.indexOf('||') !== -1) {
+        let definitions = expression.split('||');
+
         return {
             type: 'or',
-            definitions: expression.split('||')
+            regard: _.filter(definitions, def => def[0] !== '!'),
+            disregard: _.map(_.filter(definitions, def => def[0] === '!'), def => def.substr(1))
         };
     } else {
         return expression;

@@ -1,6 +1,6 @@
 {
   "name": "webpack-preprocessor",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Webpack loader for preprocessor support in JS",
   "main": "index.js",
   "repository": {
