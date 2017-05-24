@@ -186,7 +186,17 @@ function PreprocessorLoader(content) {
     // as trim function removes it. ESLint is one of many
     // programs to complain if final line EOL marker is
     // missing.
-    return code + EOLChar;
+    content = code + EOLChar;
+
+    let variables = query.variables || [];
+
+    _.each(variables, (value, key) => {
+        let regex = new RegExp(`[$]{2}[{]{2}${key}[}]{2}`, 'g');
+
+        content = content.replace(regex, value)
+    });
+
+    return content;
 }
 
 module.exports = PreprocessorLoader;
