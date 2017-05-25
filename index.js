@@ -17,11 +17,15 @@ function getBranchCode(branchRules, code = '') {
         if (!rule.condition) { return true; }
 
         if (rule.condition.type === 'and') {
-            return _.intersection(rule.condition.regard, definitions).length === rule.condition.regard.length &&
-                !_.intersection(rule.condition.disregard, definition).length;
+            let r = _.intersection(rule.condition.regard, definitions);
+            let dr = _.difference(rule.condition.disregard, definitions);
+
+            return r.length + dr.length === rule.condition.regard.length + rule.condition.disregard.length;
         } else if (rule.condition.type === 'or') {
-            return _.intersection(rule.condition.regard, definitions) &&
-                _.intersection(rule.condition.disregard, definitions).length < rule.condition.disregard.length;
+            let r = _.intersection(rule.condition.regard, definitions);
+            let dr = _.difference(rule.condition.disregard, definitions);
+
+            return r.length + dr.length > 0;
         } else if (rule.condition[0] === '!') {
             return definitions.indexOf(rule.condition.substr(1)) === -1;
         } else {
