@@ -7,10 +7,10 @@ let EOLChar;        // Holds content EOL marker.
 
 const globalRegex = /(?:((?:\/[*]|<!--).*?(?:[*]\/|-->))|(.*?))*/gm;
 
-const elifRegex = /(?:\/[*]|<!--)(?:\s*)#elif\s+([!]?\w+(?:(?:&&[!]?\w+)*|(?:[|]{2}[!]?\w+)*))(?:\s*)(?:[*]\/|-->)/;
+const elifRegex = /(?:\/[*]|<!--)(?:\s*)#elif\s+([!]?[\w-_]+(?:(?:&&[!]?[\w-_]+)*|(?:[|]{2}[!]?[\w-_]+)*))(?:\s*)(?:[*]\/|-->)/;
 const elseRegex = /(?:\/[*]|<!--)(?:\s*)#else(?:\s*)(?:[*]\/|-->)/;
 const endifRegex = /(?:\/[*]|<!--)(?:\s*)#endif(?:\s*)(?:[*]\/|-->)/;
-const ifRegex = /(?:\/[*]|<!--)(?:\s*)#if\s+([!]?\w+(?:(?:&&[!]?\w+)*|(?:[|]{2}[!]?\w+)*))(?:\s*)(?:[*]\/|-->)/;
+const ifRegex = /(?:\/[*]|<!--)(?:\s*)#if\s+([!]?[\w-_]+(?:(?:&&[!]?[\w-_]+)*|(?:[|]{2}[!]?[\w-_]+)*))(?:\s*)(?:[*]\/|-->)/;
 
 function getBranchCode(branchRules, code = '') {
     let activeBranch = _.find(branchRules, rule => {
