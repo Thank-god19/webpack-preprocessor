@@ -77,69 +77,66 @@ function getCondition(expression) {
 }
 
 function getRules(matches, stack = [{ content: [] }]) {
-    let current = matches.shift();
-    if (!current) {
-        return stack[0];
+    let current;
+    while (current = matches.shift()) {
+        let target;
+        let match;
+
+        if (match = current.match(ifRegex)) {
+            target = stack[0];
+
+            let branch = {
+                type: 'branch',
+                content: []
+            };
+            stack.unshift(branch);
+
+            let ifBlock = {
+                type: 'if',
+                condition: getCondition(match[1]),
+                content: []
+            };
+            stack.unshift(ifBlock);
+            branch.content.push(ifBlock);
+
+            target.content.push(branch);
+            target.content.push(ifBlock);
+        } else if (match = current.match(elifRegex)) {
+            stack.shift(); // out of if
+            target = stack[0];
+
+            let ifBlock = {
+                type: 'if',
+                condition: getCondition(match[1]),
+                content: []
+            };
+            stack.unshift(ifBlock);
+
+            target.content.push(ifBlock);
+        } else if (match = current.match(elseRegex)) {
+            stack.shift(); // out of if
+            target = stack[0];
+
+            let ifBlock = {
+                type: 'if',
+                content: []
+            };
+            stack.unshift(ifBlock);
+
+            target.content.push(ifBlock);
+        } else if (match = current.match(endifRegex)) {
+            stack.shift(); // out of if
+            stack.shift(); // out of branch
+        } else {
+            target = stack[0];
+
+            target.content.push({
+                type: 'expression',
+                content: current
+            });
+        }
     }
 
-    let target;
-
-    let match;
-    if (match = current.match(ifRegex)) {
-        target = stack[0];
-
-        let branch = {
-            type: 'branch',
-            content: []
-        };
-        stack.unshift(branch);
-
-        let ifBlock = {
-            type: 'if',
-            condition: getCondition(match[1]),
-            content: []
-        };
-        stack.unshift(ifBlock);
-        branch.content.push(ifBlock);
-
-        target.content.push(branch);
-        target.content.push(ifBlock);
-    } else if (match = current.match(elifRegex)) {
-        stack.shift(); // out of if
-        target = stack[0];
-
-        let ifBlock = {
-            type: 'if',
-            condition: getCondition(match[1]),
-            content: []
-        };
-        stack.unshift(ifBlock);
-
-        target.content.push(ifBlock);
-    } else if (match = current.match(elseRegex)) {
-        stack.shift(); // out of if
-        target = stack[0];
-
-        let ifBlock = {
-            type: 'if',
-            content: []
-        };
-        stack.unshift(ifBlock);
-
-        target.content.push(ifBlock);
-    } else if (match = current.match(endifRegex)) {
-        stack.shift(); // out of if
-        stack.shift(); // out of branch
-    } else {
-        target = stack[0];
-
-        target.content.push({
-            type: 'expression',
-            content: current
-        });
-    }
-
-    getRules(matches, stack);
     return stack;
 }
 
